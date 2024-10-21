@@ -203,7 +203,130 @@ def about():
 
     img2 = Image.open("Vision_comparison.png")
     st.image(img2, caption="Vision Comaprison",use_column_width=True)
+def General_assessment():
 
+    # Question 1
+    q1 = st.radio(
+        "1. How long have you been diagnosed with diabetes, and what type of diabetes do you have?",
+        ["A) Less than a year, Type 1", 
+         "B) 1-5 years, Type 2", 
+         "C) Over 5 years, Gestational", 
+         "D) Not diagnosed with diabetes"]
+    )
+    
+    # Question 2
+    q2 = st.radio(
+        "2. What is your current blood sugar control like? Are you monitoring your blood glucose levels regularly?",
+        ["A) Well controlled, daily monitoring", 
+         "B) Moderately controlled, weekly monitoring", 
+         "C) Poorly controlled, rarely monitor", 
+         "D) Not applicable"]
+    )
+    
+    # Question 3
+    q3 = st.multiselect(
+        "3. Have you experienced any changes in your vision recently? (Select all that apply)",
+        ["A) Blurriness", 
+         "B) Dark spots", 
+         "C) Difficulty seeing at night", 
+         "D) No changes in vision"]
+    )
+    
+    # Question 4
+    q4 = st.radio(
+        "4. Do you have a history of high blood pressure or high cholesterol?",
+        ["A) Yes, both", 
+         "B) Yes, high blood pressure only", 
+         "C) Yes, high cholesterol only", 
+         "D) No, neither"]
+    )
+
+    # Question 5
+    q5 = st.radio(
+        "5. Have you had any previous eye exams, and if so, when was your last one?",
+        ["A) Within the last year", 
+         "B) 1-2 years ago", 
+         "C) More than 2 years ago", 
+         "D) Never had an eye exam"]
+    )
+
+    # Question 6
+    q6 = st.radio(
+        "6. Are you currently taking any medications for diabetes, hypertension, or other health issues?",
+        ["A) Yes, for all conditions", 
+         "B) Yes, for diabetes only", 
+         "C) Yes, for hypertension only", 
+         "D) No medications"]
+    )
+
+    # Question 7
+    q7 = st.radio(
+        "7. Have you ever experienced any eye-related issues, such as floaters, flashes of light, or sudden vision loss?",
+        ["A) Yes, multiple issues", 
+         "B) Yes, one issue", 
+         "C) No issues", 
+         "D) Not sure"]
+    )
+
+    # Question 8
+    q8 = st.radio(
+        "8. Do you smoke or have a history of smoking?",
+        ["A) Currently smoke", 
+         "B) Former smoker", 
+         "C) Never smoked", 
+         "D) Not applicable"]
+    )
+
+    # Question 9
+    q9 = st.radio(
+        "9. Is there a family history of diabetes or eye diseases?",
+        ["A) Yes, both", 
+         "B) Yes, diabetes only", 
+         "C) Yes, eye diseases only", 
+         "D) No family history"]
+    )
+
+    # Question 10
+    q10 = st.multiselect(
+        "10. What lifestyle factors might affect your diabetes management? (Select all that apply)",
+        ["A) Diet", 
+         "B) Exercise", 
+         "C) Stress levels", 
+         "D) None of the above"]
+    )
+
+    # Function to check risk level
+    def check_risk(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10):
+        responses = {
+            'q1': {'safe': ['A'], 'riskNPDR': ['B'], 'riskPDR': ['C', 'D']},
+            'q2': {'safe': ['A'], 'riskNPDR': ['B'], 'riskPDR': ['C', 'D']},
+            'q3': {'safe': ['D'], 'riskNPDR': ['B', 'C'], 'riskPDR': ['A']},
+            'q4': {'safe': ['D'], 'riskNPDR': ['C'], 'riskPDR': ['A', 'B']},
+            'q5': {'safe': ['A'], 'riskNPDR': ['B'], 'riskPDR': ['C', 'D']},
+            'q6': {'safe': ['D'], 'riskNPDR': ['C'], 'riskPDR': ['A', 'B']},
+            'q7': {'safe': ['C', 'D'], 'riskNPDR': ['B'], 'riskPDR': ['A']},
+            'q8': {'safe': ['C'], 'riskNPDR': ['B'], 'riskPDR': ['A']},
+            'q9': {'safe': ['C', 'D'], 'riskNPDR': ['B'], 'riskPDR': ['A']},
+            'q10': {'safe': ['D'], 'riskNPDR': ['A', 'B', 'C'], 'riskPDR': []}
+        }
+
+        risk_level = []
+
+        # Analyze answers
+        if q1[0] in responses['q1']['riskPDR']:
+            risk_level.append("High risk of Proliferative Diabetic Retinopathy.")
+        elif q1[0] in responses['q1']['riskNPDR']:
+            risk_level.append("Risk of Non-Proliferative Diabetic Retinopathy is present.")
+        
+        # Add other checks similarly...
+
+        return risk_level
+
+    # Call the function to assess risk and display it
+    if st.button("Submit Assessment"):
+        risk_messages = check_risk(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10)
+        for message in risk_messages:
+            st.warning(message)
 def classifying(ma_ratio,bv_length,bv_tortuosity,mean_intensity):
 
     features = [ma_ratio, bv_length, bv_tortuosity, mean_intensity]
@@ -218,7 +341,7 @@ def main():
     st.title("Diabetic Retinopathy Prediction")
 
     selected_segment = st.sidebar.radio("Select a further action", 
-                                        ("Prediction and Segmentations", "About"))
+                                        ("Prediction and Segmentations", "General_assessment","About"))
     
     if selected_segment=="Prediction and Segmentations":
 
@@ -272,7 +395,8 @@ def main():
 
     if selected_segment=="About":
         about()
-
+    if selected_segment=="General_assessment":
+        General_assessment()
 
 if __name__ == '__main__':
     main()
