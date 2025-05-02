@@ -8,7 +8,9 @@ import pickle
 from skimage.morphology import skeletonize
 
 pickle_in = open("model.pkl", "rb")
+pickle_scaler = open("scaler.pkl", "rb")
 model = pickle.load(pickle_in)
+scaler = pickle.load(pickle_scaler)
 
 
 
@@ -182,7 +184,7 @@ def blood_vessel_tortuosity(image):
         return 0
     
 def mean_intensity_image(image):
-    mean_intensity = np.mean(image)
+    mean_intensity = np.mean(image) / 2
     return mean_intensity
 
 def original_image(image):
@@ -326,10 +328,11 @@ def General_assessment():
     if st.button("Submit Assessment"):
         risk_messages = check_risk(q1, q2, q3, q4, q5, q6, q7, q8, q9, q10)
         for message in risk_messages:
-            st.warning(message)
+            st.warning(message)   
 def classifying(ma_ratio,bv_length,bv_tortuosity,mean_intensity):
-
-    features = [ma_ratio, bv_length, bv_tortuosity, mean_intensity]
+    features = [[ma_ratio, bv_length, bv_tortuosity, mean_intensity]]
+    print(features)
+    features = scaler.transform(features)[0]
     features = np.array(features).reshape(1, -1)  # Reshape the features into a 2D array
 
     pred = model.predict(features)
@@ -387,8 +390,8 @@ def main():
             if st.button("Predict"):
                 result = classifying(ma_ratio,bv_length,bv_tortuosity,mean_intensity)
             
-                if result == 1:
-                    st.success('This Image shows Diabetic Retinopathy is Present.')
+                if result == 0:
+                    st.error('This Image shows Diabetic Retinopathy is Present.')
                 else:
                     st.success('This Image does not show signs of Diabetic Retinopathy.')
                 
